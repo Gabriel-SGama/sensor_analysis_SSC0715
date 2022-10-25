@@ -1,6 +1,9 @@
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+import utils
+import logic
 
 root_normal_data = "Dados-GPS-e-IMU-Normal"
 root_emg_data = "Dados-GPS-e-IMU-Emergency-Stop"
@@ -9,30 +12,30 @@ if __name__ == "__main__":
     # -------------READ-------------
     # -------------NORMAL-------------
     normal_csv_path = "Dados-GPS-e-IMU-Nornal/2022-10-17_154353_normal1.csv"
-    normal_csv_file = pd.read_csv(normal_csv_path)
+    normal_csv = pd.read_csv(normal_csv_path)
+
+    normal_acc_txt_path = "Dados-GPS-e-IMU-Nornal/Sensors_normal_accelerometer_t1.txt"
+    normal_acc_txt_values = utils.readTxt(normal_acc_txt_path)
 
     # -------------EMERGENCY-------------
     emg_csv_path = "Dados-GPS-e-IMU-Emergency-Stop/C2_2022-10-17_160507_Sao_Carlos.csv"
-    emg_csv_file = pd.read_csv(emg_csv_path)
+    emg_csv = pd.read_csv(emg_csv_path)
+
+    # -------------PROCESS-------------
+    func = logic.detect_accidents(normal_csv, emg_csv)
+
+    plt.figure()
+    plt.plot(func)
 
     # -------------PLOT-------------
     # -------------NORMAL-------------
-    fig, ax1 = plt.subplots()
-    ax2 = ax1.twinx()
-    ax1.plot(normal_csv_file["Speed"], color="b")
-    ax2.plot(normal_csv_file["Bearing"], color="r")
+    # utils.plotCsv(normal_csv)
 
-    ax1.set_ylabel("Speed (m/s)", color="b")
-    ax2.set_ylabel("bearing (°)", color="r")
+    # plt.figure()
+    # plt.plot(normal_acc_txt_values[:, 0], normal_acc_txt_values[:, 1:])
 
     # -------------EMERGENCY-------------
-    fig, ax1 = plt.subplots()
-    ax2 = ax1.twinx()
-    ax3 = ax1.twinx()
-    ax1.plot(emg_csv_file["Speed"], color="b")
-    ax2.plot(emg_csv_file["Bearing"], color="r")
-
-    ax1.set_ylabel("Speed (m/s)", color="b")
-    ax2.set_ylabel("bearing (°)", color="r")
+    utils.plotCsv(emg_csv)
+    utils.drawMap(emg_csv, func, 25)
 
     plt.show()
