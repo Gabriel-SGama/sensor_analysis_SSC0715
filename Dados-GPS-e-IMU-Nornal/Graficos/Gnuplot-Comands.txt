@@ -1,0 +1,6 @@
+cd "D:"
+cd "Downloads"
+set style data lines       
+plot "Sensors_X.txt", "Sensors_Y.txt", "Sensors_Z.txt"
+set xrange[0:1000]
+replot
