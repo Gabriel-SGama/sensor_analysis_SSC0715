@@ -32,7 +32,7 @@ def detect_accidents(normal_data, emg_data):
     print("speed_diff_mean: ", speed_diff_mean)
     print("bearing_diff_mean: ", bearing_diff_mean)
 
-    func = np.zeros_like(emg_speed[1:])
+    func = np.zeros_like(emg_speed)
     avg_speed_change = (emg_speed[0] - emg_speed[1]) / speed_diff_mean
     avg_bearing_change = np.abs(emg_bearing[0] - emg_bearing[1]) / bearing_diff_mean
     for i in range(1, len(emg_speed)):
@@ -45,7 +45,7 @@ def detect_accidents(normal_data, emg_data):
         # avg_bearing_change = 0.7 * avg_bearing_change + (1 - 0.7) * np.abs(b1 - b2) / bearing_diff_mean
         # func[i - 1] = 6 * avg_speed_change - avg_bearing_change
 
-        func[i - 1] = (bearing_diff_mean / speed_diff_mean) * (s1 - s2) / speed_diff_mean - np.abs(b1 - b2) / bearing_diff_mean
+        func[i] = (bearing_diff_mean / speed_diff_mean) * (s1 - s2) / speed_diff_mean - np.abs(b1 - b2) / bearing_diff_mean
         # func[i - 1] = avg_speed_change - np.abs(b1 - b2) / bearing_diff_mean
         # func[i - 1] = (s1 - s2) / speed_diff_mean - avg_bearing_change
         # func[i - 1] = avg_speed_change - avg_bearing_change

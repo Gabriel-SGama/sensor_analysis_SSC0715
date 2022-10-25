@@ -18,17 +18,46 @@ def readTxt(path):
 
 
 # -------------PLOT FUNCTIONS-------------
-def plotCsv(data):
+def plotCsv(data, func=None, accident_th=None):
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
     ax1.plot(data["Speed"], color="b")
-    ax2.plot(data["Bearing"], color="r")
+    ax2.plot(data["Bearing"], color="g")
 
     ax1.set_ylabel("Speed (m/s)", color="b")
-    ax2.set_ylabel("bearing (°)", color="r")
+    ax2.set_ylabel("bearing (°)", color="g")
+
+    if func is not None and accident_th is not None:
+        index = np.where(func > accident_th)
+        ax1.vlines(
+            index,
+            ymin=np.min(data["Speed"]),
+            ymax=np.max(data["Speed"]),
+            color="r",
+            linestyles=["dashed"],
+            linewidth=2,
+            alpha=0.8,
+        )
 
 
-def drawMap(data, func, accident_th):
+def plotFunc(func, accident_th):
+    plt.figure()
+    plt.plot(func)
+
+    index = np.where(func > accident_th)
+    plt.vlines(
+        index,
+        ymin=np.min(func),
+        ymax=np.max(func),
+        color="r",
+        linestyles=["dashed"],
+        linewidth=2,
+        alpha=0.8,
+    )
+
+
+def drawMap(data, func, imu, accident_th, bump_th):
+    # ------MAP TRAJECTORY------
     lat_data = np.array(data["Lat"])
     lng_data = np.array(data["Lng"])
 
@@ -43,6 +72,7 @@ def drawMap(data, func, accident_th):
 
     map_img = np.zeros((_MAP_HEIGHT, _MAP_LENGTH, 3), np.uint8)
 
+    # ------FUNC SCALE------
     func = np.maximum(0, func)
 
     max_func = np.max(func)
@@ -56,16 +86,32 @@ def drawMap(data, func, accident_th):
     saturation = 255
     value = 255
 
+    # ------IMU------
+    z = imu[:, 3]  # z values
+    print("z mean: ", np.mean(z))
+    print("z max: ", np.max(z))
+
+    # assumes syncronized values
+    index_scale = imu.shape[0] / len(lat_data)
+
+    print("scale:", index_scale)
+
+    # ------PLOT------
     for i, (lat, lng) in enumerate(zip(lat_data, lng_data)):
         colunm = round((lat - min_lat) * lat_scale)
         line = round((lng - min_lng) * lng_scale)
 
-        color = (hue_min + hue_diff * func[i - 1] * func_scale if i > 0 else hue_min, saturation, value)
+        color = (hue_min + hue_diff * func[i] * func_scale if i > 0 else hue_min, saturation, value)
 
         cv.circle(map_img, (colunm, line), 3, color, -1)
 
-        if func[i - 1] > accident_th:
+        if func[i] > accident_th:
             cv.circle(map_img, (colunm, line), 15, (hue_max, saturation, value), 2)
+
+        for j in range(int(index_scale)):
+            if z[round(i * index_scale + j)] > bump_th:
+                cv.circle(map_img, (colunm, line), 15, (90, saturation, value), 2)
+                break
 
     map_img = cv.cvtColor(map_img, cv.COLOR_HSV2RGB)
 

@@ -8,6 +8,8 @@ import logic
 root_normal_data = "Dados-GPS-e-IMU-Normal"
 root_emg_data = "Dados-GPS-e-IMU-Emergency-Stop"
 
+ACCIDENT_TH = 25
+
 if __name__ == "__main__":
     # -------------READ-------------
     # -------------NORMAL-------------
@@ -21,21 +23,31 @@ if __name__ == "__main__":
     emg_csv_path = "Dados-GPS-e-IMU-Emergency-Stop/C2_2022-10-17_160507_Sao_Carlos.csv"
     emg_csv = pd.read_csv(emg_csv_path)
 
+    emg_acc_txt_path = "Dados-GPS-e-IMU-Emergency-Stop/Sensors_c2_accelerometer_t1.txt"
+    emg_acc_txt_values = utils.readTxt(emg_acc_txt_path)
+
     # -------------PROCESS-------------
     func = logic.detect_accidents(normal_csv, emg_csv)
 
-    plt.figure()
-    plt.plot(func)
-
     # -------------PLOT-------------
+    # -------------DETECT-------------
+    # plt.figure()
+    # plt.plot(func)
+    utils.plotFunc(func, ACCIDENT_TH)
+
     # -------------NORMAL-------------
     # utils.plotCsv(normal_csv)
 
     # plt.figure()
-    # plt.plot(normal_acc_txt_values[:, 0], normal_acc_txt_values[:, 1:])
+    # plt.plot(normal_acc_txt_values[:, 0], normal_acc_txt_values[:, 1:], label=["X", "Y", "Z"])
+    # plt.legend()
 
     # -------------EMERGENCY-------------
-    utils.plotCsv(emg_csv)
-    utils.drawMap(emg_csv, func, 25)
+    utils.plotCsv(emg_csv, func, ACCIDENT_TH)
+    utils.drawMap(emg_csv, func, emg_acc_txt_values, ACCIDENT_TH, 16.5)
+
+    plt.figure()
+    plt.plot(emg_acc_txt_values[:, 0], emg_acc_txt_values[:, 1:], label=["X", "Y", "Z"])
+    plt.legend()
 
     plt.show()
