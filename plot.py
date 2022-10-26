@@ -8,7 +8,11 @@ import logic
 root_normal_data = "Dados-GPS-e-IMU-Normal"
 root_emg_data = "Dados-GPS-e-IMU-Emergency-Stop"
 
-ACCIDENT_TH = 25
+_ACCIDENT_TH = 30
+_BUMP_TH = 2  # 3x mean value
+_EMG_START_ITER = 5850
+_EMG_END_ITER = 43270
+
 
 if __name__ == "__main__":
     # -------------READ-------------
@@ -17,37 +21,49 @@ if __name__ == "__main__":
     normal_csv = pd.read_csv(normal_csv_path)
 
     normal_acc_txt_path = "Dados-GPS-e-IMU-Nornal/Sensors_normal_accelerometer_t1.txt"
-    normal_acc_txt_values = utils.readTxt(normal_acc_txt_path)
+    normal_acc_txt_values = utils.readTxt(normal_acc_txt_path, _EMG_START_ITER, _EMG_END_ITER)
 
     # -------------EMERGENCY-------------
     emg_csv_path = "Dados-GPS-e-IMU-Emergency-Stop/C2_2022-10-17_160507_Sao_Carlos.csv"
     emg_csv = pd.read_csv(emg_csv_path)
 
     emg_acc_txt_path = "Dados-GPS-e-IMU-Emergency-Stop/Sensors_c2_accelerometer_t1.txt"
-    emg_acc_txt_values = utils.readTxt(emg_acc_txt_path)
+    emg_acc_txt_values = utils.readTxt(emg_acc_txt_path, _EMG_START_ITER, _EMG_END_ITER)
+
+    emg_gyro_txt_path = "Dados-GPS-e-IMU-Emergency-Stop/Sensors_c2_gyroscope_t1.txt"
+    emg_gyro_txt_values = utils.readTxt(emg_gyro_txt_path, _EMG_START_ITER, _EMG_END_ITER)
 
     # -------------PROCESS-------------
-    func = logic.detect_accidents(normal_csv, emg_csv)
+
+    # -------------ACCIDENTS-------------
+    func_normal, normal_accident_indexs = logic.detect_accidents(normal_csv, normal_csv, _ACCIDENT_TH)
+    func_emg, emg_accident_indexs = logic.detect_accidents(normal_csv, emg_csv, _ACCIDENT_TH)
 
     # -------------PLOT-------------
     # -------------DETECT-------------
-    # plt.figure()
-    # plt.plot(func)
-    utils.plotFunc(func, ACCIDENT_TH)
+    utils.plotFunc(func_normal, normal_accident_indexs, "normal function values")
+    utils.plotFunc(func_emg, emg_accident_indexs, "emergency function values")
 
     # -------------NORMAL-------------
-    # utils.plotCsv(normal_csv)
-
-    # plt.figure()
-    # plt.plot(normal_acc_txt_values[:, 0], normal_acc_txt_values[:, 1:], label=["X", "Y", "Z"])
-    # plt.legend()
-
-    # -------------EMERGENCY-------------
-    utils.plotCsv(emg_csv, func, ACCIDENT_TH)
-    utils.drawMap(emg_csv, func, emg_acc_txt_values, ACCIDENT_TH, 16.5)
+    utils.plotCsv(normal_csv, "normal data", normal_accident_indexs)
+    utils.drawMap(normal_csv, func_normal, normal_acc_txt_values, normal_accident_indexs, _BUMP_TH, "normal map")
 
     plt.figure()
-    plt.plot(emg_acc_txt_values[:, 0], emg_acc_txt_values[:, 1:], label=["X", "Y", "Z"])
+    plt.title("normal accelerometer data")
+    plt.xlabel("step")
+    plt.ylabel("m/s^2")
+    plt.plot(normal_acc_txt_values[:, 1:], label=["X", "Y", "Z"])
+    plt.legend()
+
+    # -------------EMERGENCY-------------
+    utils.plotCsv(emg_csv, "emergency data", emg_accident_indexs)
+    utils.drawMap(emg_csv, func_emg, emg_acc_txt_values, emg_accident_indexs, _BUMP_TH, "emergency map")
+
+    plt.figure()
+    plt.title("emergency accelerometer data")
+    plt.xlabel("step")
+    plt.ylabel("m/s^2")
+    plt.plot(emg_acc_txt_values[:, 1:], label=["X", "Y", "Z"])
     plt.legend()
 
     plt.show()

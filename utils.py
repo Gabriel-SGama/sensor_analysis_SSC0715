@@ -6,7 +6,7 @@ _MAP_LENGTH = 1200
 _MAP_HEIGHT = 1200
 
 # -------------READ FUNCTIONS-------------
-def readTxt(path):
+def readTxt(path, start_index, end_index):
     normal_acc_txt_path = path
     normal_acc_txt_lines = open(normal_acc_txt_path, "r").readlines()
     normal_acc_txt_lines = normal_acc_txt_lines[14:]
@@ -14,23 +14,24 @@ def readTxt(path):
     normal_acc_txt_values = np.array([float(value) for line in normal_acc_txt_lines for value in line[:-1].split("\t")])
     normal_acc_txt_values = normal_acc_txt_values.reshape((len(normal_acc_txt_values) // 4, 4))
 
-    return normal_acc_txt_values
+    return normal_acc_txt_values[start_index:end_index]
 
 
 # -------------PLOT FUNCTIONS-------------
-def plotCsv(data, func=None, accident_th=None):
+def plotCsv(data, title, accident_indexs=None):
     fig, ax1 = plt.subplots()
+    plt.title(title)
     ax2 = ax1.twinx()
     ax1.plot(data["Speed"], color="b")
     ax2.plot(data["Bearing"], color="g")
 
+    ax1.set_xlabel("step")
     ax1.set_ylabel("Speed (m/s)", color="b")
     ax2.set_ylabel("bearing (°)", color="g")
 
-    if func is not None and accident_th is not None:
-        index = np.where(func > accident_th)
+    if accident_indexs is not None:
         ax1.vlines(
-            index,
+            accident_indexs,
             ymin=np.min(data["Speed"]),
             ymax=np.max(data["Speed"]),
             color="r",
@@ -40,13 +41,13 @@ def plotCsv(data, func=None, accident_th=None):
         )
 
 
-def plotFunc(func, accident_th):
+def plotFunc(func, accident_indexs, title):
     plt.figure()
     plt.plot(func)
+    plt.title(title)
 
-    index = np.where(func > accident_th)
     plt.vlines(
-        index,
+        accident_indexs,
         ymin=np.min(func),
         ymax=np.max(func),
         color="r",
@@ -56,7 +57,7 @@ def plotFunc(func, accident_th):
     )
 
 
-def drawMap(data, func, imu, accident_th, bump_th):
+def drawMap(data, func, imu, accident_indexs, bump_th, title):
     # ------MAP TRAJECTORY------
     lat_data = np.array(data["Lat"])
     lng_data = np.array(data["Lng"])
@@ -87,14 +88,16 @@ def drawMap(data, func, imu, accident_th, bump_th):
     value = 255
 
     # ------IMU------
-    z = imu[:, 3]  # z values
-    print("z mean: ", np.mean(z))
-    print("z max: ", np.max(z))
+    z_values = imu[:, 3]  # z values
+    z_mean = np.mean(z_values)
+    z_var = np.var(z_values)
+    print("z mean: ", z_mean)
+    print("z var: ", z_var)
 
     # assumes syncronized values
-    index_scale = imu.shape[0] / len(lat_data)
+    index_scale = int(imu.shape[0] / len(lat_data))
 
-    print("scale:", index_scale)
+    print("imu index scale:", index_scale)
 
     # ------PLOT------
     for i, (lat, lng) in enumerate(zip(lat_data, lng_data)):
@@ -105,15 +108,25 @@ def drawMap(data, func, imu, accident_th, bump_th):
 
         cv.circle(map_img, (colunm, line), 3, color, -1)
 
-        if func[i] > accident_th:
-            cv.circle(map_img, (colunm, line), 15, (hue_max, saturation, value), 2)
-
         for j in range(int(index_scale)):
-            if z[round(i * index_scale + j)] > bump_th:
-                cv.circle(map_img, (colunm, line), 15, (90, saturation, value), 2)
-                break
+            z = z_values[i * index_scale + j]
+
+            if z > 0:
+                pdf = 1 / (z_var * np.sqrt(2 * np.pi)) * np.exp(-0.5 * (((z - z_mean) / z_var) ** 2))
+                if pdf < 1e-15:
+                    cv.circle(map_img, (colunm, line), 15, (90, saturation, value), 2)
+                    break
+
+    for index in accident_indexs:
+        lat = lat_data[index]
+        lng = lng_data[index]
+        colunm = round((lat - min_lat) * lat_scale)
+        line = round((lng - min_lng) * lng_scale)
+
+        cv.circle(map_img, (colunm, line), 15, (hue_max, saturation, value), 2)
 
     map_img = cv.cvtColor(map_img, cv.COLOR_HSV2RGB)
 
     plt.figure()
+    plt.title(title)
     plt.imshow(map_img)
