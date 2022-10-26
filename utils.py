@@ -1,3 +1,4 @@
+import colorsys
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
@@ -45,6 +46,7 @@ def plotFunc(func, accident_indexs, title):
     plt.figure()
     plt.plot(func)
     plt.title(title)
+    plt.xlabel("step")
 
     plt.vlines(
         accident_indexs,
@@ -58,6 +60,8 @@ def plotFunc(func, accident_indexs, title):
 
 
 def drawMap(data, func, imu, accident_indexs, bump_th, title):
+    text_pos_x = 0.80
+
     # ------MAP TRAJECTORY------
     lat_data = np.array(data["Lat"])
     lng_data = np.array(data["Lng"])
@@ -93,6 +97,7 @@ def drawMap(data, func, imu, accident_indexs, bump_th, title):
     z_var = np.var(z_values)
     print("z mean: ", z_mean)
     print("z var: ", z_var)
+    no_bump_count = 5
 
     # assumes syncronized values
     index_scale = int(imu.shape[0] / len(lat_data))
@@ -108,14 +113,17 @@ def drawMap(data, func, imu, accident_indexs, bump_th, title):
 
         cv.circle(map_img, (colunm, line), 3, color, -1)
 
-        for j in range(int(index_scale)):
-            z = z_values[i * index_scale + j]
+        no_bump_count += 1
+        if no_bump_count > 5:
+            for j in range(int(index_scale)):
+                z = z_values[i * index_scale + j]
 
-            if z > 0:
-                pdf = 1 / (z_var * np.sqrt(2 * np.pi)) * np.exp(-0.5 * (((z - z_mean) / z_var) ** 2))
-                if pdf < 1e-15:
-                    cv.circle(map_img, (colunm, line), 15, (90, saturation, value), 2)
-                    break
+                if z > 0:
+                    pdf = 1 / (z_var * np.sqrt(2 * np.pi)) * np.exp(-0.5 * (((z - z_mean) / z_var) ** 2))
+                    if pdf < 1e-15:
+                        cv.circle(map_img, (colunm, line), 15, (90, saturation, value), 2)
+                        no_bump_count = 0
+                        break
 
     for index in accident_indexs:
         lat = lat_data[index]
@@ -125,8 +133,17 @@ def drawMap(data, func, imu, accident_indexs, bump_th, title):
 
         cv.circle(map_img, (colunm, line), 15, (hue_max, saturation, value), 2)
 
+    cv.circle(map_img, (int(_MAP_LENGTH * text_pos_x), 20), 15, (hue_max, saturation, value), 2)
+    cv.circle(map_img, (int(_MAP_LENGTH * text_pos_x), 60), 15, (90, saturation, value), 2)
+
     map_img = cv.cvtColor(map_img, cv.COLOR_HSV2RGB)
 
     plt.figure()
     plt.title(title)
+
+    accident_color = colorsys.hsv_to_rgb(1, 1, 1)
+    bump_color = colorsys.hsv_to_rgb(90 / hue_max, 1, 1)
+
+    plt.annotate("accident", (int(_MAP_LENGTH * text_pos_x + 20), 20 + 15), color=accident_color)
+    plt.annotate("bump", (int(_MAP_LENGTH * text_pos_x + 20), 60 + 15), color=bump_color)
     plt.imshow(map_img)
