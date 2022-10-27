@@ -68,7 +68,7 @@ def plotFunc(func, accident_indexs, title):
     )
 
 
-def drawMap(data, func, imu, accident_indexs, bump_th, title):
+def drawMap(data, func, imu, accident_indexs, bump_index, title):
     text_pos_x = 0.80
 
     # ------MAP TRAJECTORY------
@@ -109,9 +109,9 @@ def drawMap(data, func, imu, accident_indexs, bump_th, title):
     no_bump_count = 5
 
     # assumes syncronized values
-    index_scale = int(imu.shape[0] / len(lat_data))
+    imu_index_scale = len(lat_data) / imu.shape[0]
 
-    print("imu index scale:", index_scale)
+    print("imu index scale:", imu_index_scale)
 
     # ------PLOT------
     for i, (lat, lng) in enumerate(zip(lat_data, lng_data)):
@@ -122,17 +122,13 @@ def drawMap(data, func, imu, accident_indexs, bump_th, title):
 
         cv.circle(map_img, (colunm, line), 3, color, -1)
 
-        no_bump_count += 1
-        if no_bump_count > 5:
-            for j in range(int(index_scale)):
-                z = z_values[i * index_scale + j]
+    for index in bump_index:
+        lat = lat_data[int(index * imu_index_scale)]
+        lng = lng_data[int(index * imu_index_scale)]
+        colunm = round((lat - min_lat) * lat_scale)
+        line = round((lng - min_lng) * lng_scale)
 
-                if z > 0:
-                    pdf = 1 / (z_var * np.sqrt(2 * np.pi)) * np.exp(-0.5 * (((z - z_mean) / z_var) ** 2))
-                    if pdf < bump_th:
-                        cv.circle(map_img, (colunm, line), 15, (90, saturation, value), 2)
-                        no_bump_count = 0
-                        break
+        cv.circle(map_img, (colunm, line), 15, (90, saturation, value), 2)
 
     for index in accident_indexs:
         lat = lat_data[index]

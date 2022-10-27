@@ -1,4 +1,29 @@
 import numpy as np
+import cv2 as cv
+
+
+def detect_bumps(normal_imu, emg_imu, bump_th):
+    normal_z_values = normal_imu[:, 3]  # z values
+    emg_z_values = emg_imu[:, 3]  # z values
+    normal_z_mean = np.mean(normal_z_values)
+    normal_z_var = np.var(normal_z_values)
+    print("normal z mean: ", normal_z_mean)
+    print("normal z var: ", normal_z_var)
+    no_bump_count = 350
+
+    index = []
+
+    for i, emg_z in enumerate(emg_z_values):
+        no_bump_count += 1
+        # if no_bump_count > 350:
+        if no_bump_count > 0:
+            if emg_z > 0:
+                pdf = 1 / (normal_z_var * np.sqrt(2 * np.pi)) * np.exp(-0.5 * (((emg_z - normal_z_mean) / normal_z_var) ** 2))
+                if pdf < bump_th:
+                    no_bump_count = 0
+                    index.append(i)
+
+    return np.array(index)
 
 
 def detect_accidents(normal_data, emg_data, accident_th):
