@@ -42,6 +42,15 @@ def plotCsv(data, title, accident_indexs=None):
         )
 
 
+def plotTxt(data, title):
+    plt.figure()
+    plt.title(title)
+    plt.xlabel("step")
+    plt.ylabel("m/s^2")
+    plt.plot(data[:, 1:], label=["X", "Y", "Z"])
+    plt.legend()
+
+
 def plotFunc(func, accident_indexs, title):
     plt.figure()
     plt.plot(func)
@@ -120,7 +129,7 @@ def drawMap(data, func, imu, accident_indexs, bump_th, title):
 
                 if z > 0:
                     pdf = 1 / (z_var * np.sqrt(2 * np.pi)) * np.exp(-0.5 * (((z - z_mean) / z_var) ** 2))
-                    if pdf < 1e-15:
+                    if pdf < bump_th:
                         cv.circle(map_img, (colunm, line), 15, (90, saturation, value), 2)
                         no_bump_count = 0
                         break
