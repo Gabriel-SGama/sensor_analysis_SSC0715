@@ -39,7 +39,7 @@ python main.py
 
 A 1D convolutional neural network is trained to predict the next speed value to generate relevant features. After that, the method KNN-means is applied to the encoder features to classify each sequence step.
 
-The "accidents" are marked according the Handmade approach.
+The "accidents" are marked according to the Handmade approach.
 
 ### Cluster example
 <p align="center">
