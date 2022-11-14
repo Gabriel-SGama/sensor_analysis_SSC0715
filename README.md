@@ -20,9 +20,17 @@ The core idea is to weight the velocity term and discount when the car is turnin
 If the function value is higher than a certain threshold, it is considered an accident.
 
 #### Function values and map
-![normal_func](imgs/normal_func.png?raw=true "normal function")
-![emg_func](imgs/emg_func.png?raw=true "emergency function")
-![emg_map](imgs/emg_map.png?raw=true "emergency map")
+<p align="center">
+  <img src="imgs/normal_func.png">
+</p>
+
+<p align="center">
+  <img src="imgs/emg_func.png">
+</p>
+
+<p align="center">
+  <img src="imgs/emg_map.png">
+</p>
 
 ## Unsupervised approach
 ```
@@ -34,5 +42,10 @@ A 1D convolutional neural network is trained to predict the next speed value to 
 The "accidents" are marked according the Handmade approach.
 
 #### Cluster example
-![normal_uns](imgs/normal_uns.png?raw=true "normal cluster")
-![emg_uns](imgs/emg_uns.png?raw=true "emg cluster")
+<p align="center">
+  <img src="imgs/normal_uns.png">
+</p>
+
+<p align="center">
+  <img src="imgs/emg_uns.png">
+</p>
