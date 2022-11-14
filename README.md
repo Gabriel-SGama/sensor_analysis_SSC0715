@@ -3,7 +3,7 @@
 This is a repository for my project for SSC0715. Sensor analysis to detect variation in the sensor data (IMU and GPS were used)
 
 
-##Handmade approach
+## Handmade approach
 
 ```
 cd handmade_method
@@ -19,12 +19,12 @@ The core idea is to weight the velocity term and discount when the car is turnin
 
 If the function value is higher than a certain threshold, it is considered an accident.
 
-####Function values and map
+#### Function values and map
 ![normal_func](imgs/normal_func.png?raw=true "normal function")
 ![emg_func](imgs/emg_func.png?raw=true "emergency function")
 ![emg_map](imgs/emg_map.png?raw=true "emergency map")
 
-##Unsupervised approach
+## Unsupervised approach
 ```
 python main.py
 ```
@@ -33,6 +33,6 @@ A 1D convolutional neural network is trained to predict the next speed value to 
 
 The "accidents" are marked according the Handmade approach.
 
-####Cluster example
+#### Cluster example
 ![normal_uns](imgs/normal_uns.png?raw=true "normal cluster")
 ![emg_uns](imgs/emg_uns.png?raw=true "emg cluster")
