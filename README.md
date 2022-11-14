@@ -19,7 +19,7 @@ The core idea is to weight the velocity term and discount when the car is turnin
 
 If the function value is higher than a certain threshold, it is considered an accident.
 
-#### Function values and map
+### Function values and map
 <p align="center">
   <img src="imgs/normal_func.png">
 </p>
@@ -41,7 +41,7 @@ A 1D convolutional neural network is trained to predict the next speed value to 
 
 The "accidents" are marked according the Handmade approach.
 
-#### Cluster example
+### Cluster example
 <p align="center">
   <img src="imgs/normal_uns.png">
 </p>
