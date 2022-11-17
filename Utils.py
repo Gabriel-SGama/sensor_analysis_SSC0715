@@ -61,17 +61,6 @@ def plotCsv(data, title, pred=None, labels=None, dist=None, accident_indexs=None
         )
 
 
-# plt.figure()
-# plt.xlim(0, 5)
-# plt.ylim(0, 5)
-
-# for i in range(0, 5):
-#     plt.axhspan(i, i + 0.2, facecolor="0.2", alpha=0.5)
-#     plt.axvspan(i, i + 0.5, facecolor="b", alpha=0.5)
-
-# plt.show()
-
-
 def drawMap(data, func, imu, accident_indexs, bump_index, title):
     text_pos_x = 0.80
 
@@ -110,9 +99,8 @@ def drawMap(data, func, imu, accident_indexs, bump_index, title):
     z_var = np.var(z_values)
     print("z mean: ", z_mean)
     print("z var: ", z_var)
-    no_bump_count = 5
 
-    # assumes syncronized values
+    # assumes synchronized values
     imu_index_scale = len(lat_data) / imu.shape[0]
 
     print("imu index scale:", imu_index_scale)

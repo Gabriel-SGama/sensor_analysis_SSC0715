@@ -3,6 +3,20 @@ import cv2 as cv
 
 
 def detect_accidents(normal_data, emg_data, accident_th):
+    """detects accidents according to the functions values and the accident_th.
+    the normal data is used as calibration since the emergency data wouldn't be available
+    in real world.
+
+    Args:
+        normal_data: dict with normal data
+        emg_data: dict with emergency data
+        accident_th: threshold value
+
+    Returns:
+        func: function values
+        index: index of the detected accidents
+    """
+
     normal_speed = normal_data["Speed"]
     normal_bearing = normal_data["Bearing"]
     emg_speed = emg_data["Speed"]

@@ -5,6 +5,19 @@ import cv2 as cv
 
 
 def extract_features(model, loader, max_conv_size):
+    """given a pre trained model, this function extract the predicted speed
+    and extracted features.
+
+
+    Args:
+        model: pre trained model
+        loader: test loader
+        max_conv_size: time window
+
+    Returns:
+        enc_features: list with the extract features from every time step
+        pred: dict with the speed prediction (maybe also prediction the cos and sin might help)
+    """
 
     model.eval()
 
@@ -30,6 +43,20 @@ def extract_features(model, loader, max_conv_size):
 
 
 def cluster(normal_enc_features, emg_enc_features):
+    """using the features extract with the pre trained model,
+    the KMeans cluster each time step.
+
+
+    Args:
+        normal_enc_features: list with normal data features
+        emg_enc_features: list with emergency data features
+
+    Returns:
+        normal_labels: KMeans labels for normal data
+        emg_labels: KMeans labels for emergency data
+        normal_dist: KMeans dist to the class centroid for normal data
+        emg_dist: KMeans dist to the class centroid for emergency data
+    """
     features = np.concatenate((normal_enc_features, emg_enc_features))
     kmeans = KMeans(n_clusters=3, random_state=0).fit(features)
 

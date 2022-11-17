@@ -13,6 +13,13 @@ import numpy as np
 
 class Trajectory(data.Dataset):
     def __init__(self, normal_data, emg_data, max_conv_size=7):
+        """preprocess csv data to generate the train dataset.
+
+        Args:
+            normal_data: dict with normal data
+            emg_data: dict with emergency data
+            max_conv_size (int, optional): window size. Defaults to 7.
+        """
         # max_conv_size: always set to a odd number
 
         self.conv_size = max_conv_size
@@ -39,6 +46,14 @@ class Trajectory(data.Dataset):
         self.emg_cos = np.concatenate((zeros, self.emg_cos), axis=0)
 
     def __getitem__(self, index):
+        """get the data within the window size
+
+        Args:
+            index: pytorch index
+
+        Returns:
+            sample: dict with train data and labels
+        """
         save_index = index
 
         # pick sequence
@@ -83,8 +98,12 @@ class Trajectory(data.Dataset):
 
 class Unsupervised(data.Dataset):
     def __init__(self, data, max_conv_size=7):
-        # max_conv_size: always set to a odd number
+        """creates the array to the window sized sampling
 
+        Args:
+            data: dict with normal or emergency data
+            max_conv_size (int, optional): window size. Defaults to 7.
+        """
         self.conv_size = max_conv_size
 
         self.speed = np.array(data["Speed"], dtype=float)
@@ -112,8 +131,12 @@ class Unsupervised(data.Dataset):
         sample["train_speed"] = torch.tensor(
             self.speed[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32
         ).unsqueeze(0)
-        sample["train_sin"] = torch.tensor(self.sin[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32).unsqueeze(0)
-        sample["train_cos"] = torch.tensor(self.cos[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32).unsqueeze(0)
+        sample["train_sin"] = torch.tensor(
+            self.sin[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32
+        ).unsqueeze(0)
+        sample["train_cos"] = torch.tensor(
+            self.cos[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32
+        ).unsqueeze(0)
 
         return sample
 

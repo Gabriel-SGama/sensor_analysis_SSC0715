@@ -9,7 +9,14 @@ def loss_fn(out, label):
 
 
 def train(model, loader, optimizer):
+    """train the model to predict the t+max_conv_size//2 + 1 step.
+    This creates relevant features for KMeans, instead of only using random values
 
+    Args:
+        model: pytorch model
+        loader: train loader
+        optimizer: optimizer to update the model
+    """
     for e in range(15):
         loss_mean = 0
 
@@ -17,8 +24,6 @@ def train(model, loader, optimizer):
             speed = sample["train_speed"]
             sin = sample["train_sin"]
             cos = sample["train_cos"]
-
-            # print("speed: ", speed.shape)
 
             out = model(speed, sin, cos)
             loss = loss_fn(out["speed"], sample["label_speed"])

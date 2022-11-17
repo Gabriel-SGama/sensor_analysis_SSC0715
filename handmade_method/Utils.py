@@ -106,9 +106,8 @@ def drawMap(data, func, imu, accident_indexs, bump_index, title):
     z_var = np.var(z_values)
     print("z mean: ", z_mean)
     print("z var: ", z_var)
-    no_bump_count = 5
 
-    # assumes syncronized values
+    # assumes synchronized values
     imu_index_scale = len(lat_data) / imu.shape[0]
 
     print("imu index scale:", imu_index_scale)

@@ -3,6 +3,20 @@ import cv2 as cv
 
 
 def detect_bumps(normal_imu, emg_imu, bump_th):
+    """detects bumps according to a normal distribution.
+    Using a normal threshold approach didn't generalize for
+    the emergency data so I tried this instead, but it also
+    didn't work...
+
+    Args:
+        normal_imu: imu data
+        emg_imu: emergency imu data
+        bump_th: threshold for bump detection
+
+    Returns:
+        _type_: detected bumps
+    """
+
     normal_z_values = normal_imu[:, 3]  # z values
     emg_z_values = emg_imu[:, 3]  # z values
     normal_z_mean = np.mean(normal_z_values)
@@ -15,7 +29,6 @@ def detect_bumps(normal_imu, emg_imu, bump_th):
 
     for i, emg_z in enumerate(emg_z_values):
         no_bump_count += 1
-        # if no_bump_count > 350:
         if no_bump_count > 0:
             if emg_z > 0:
                 pdf = 1 / (normal_z_var * np.sqrt(2 * np.pi)) * np.exp(-0.5 * (((emg_z - normal_z_mean) / normal_z_var) ** 2))
@@ -27,6 +40,20 @@ def detect_bumps(normal_imu, emg_imu, bump_th):
 
 
 def detect_accidents(normal_data, emg_data, accident_th):
+    """detects accidents according to the functions values and the accident_th.
+    the normal data is used as calibration since the emergency data wouldn't be available
+    in real world.
+
+    Args:
+        normal_data: dict with normal data
+        emg_data: dict with emergency data
+        accident_th: threshold value
+
+    Returns:
+        func: function values
+        index: index of the detected accidents
+    """
+
     normal_speed = normal_data["Speed"]
     normal_bearing = normal_data["Bearing"]
     emg_speed = emg_data["Speed"]
