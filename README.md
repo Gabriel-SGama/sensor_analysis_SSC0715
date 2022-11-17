@@ -8,10 +8,10 @@ The data was created by the professor responsible for SSC0715.
 - Normal data:
   - Normal driving data;
   - Zero "accidents";
-  - Bumbs partially detected (no labels provided).
+  - Bumps partially detected (no labels provided).
 
 - Emergency data:
-  - Simulated accidents with agressive breaks;
+  - Simulated accidents with aggressive breaks;
   - Zig Zag to test the accident detection;
   - The handmade function was able to detect all accidents (the "label" in Dados-GPS-e-IMU-Emergency-Stop/Pontos-de-Destaque is wrong);
   - Didn't detect bumps (no labels provided).
