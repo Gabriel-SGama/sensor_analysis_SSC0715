@@ -4,7 +4,7 @@ import numpy as np
 import cv2 as cv
 
 
-def extract_features(model, loader, max_conv_size):
+def extract_features(model, loader, max_conv_size, device):
     """given a pre trained model, this function extract the predicted speed
     and extracted features.
 
@@ -28,14 +28,14 @@ def extract_features(model, loader, max_conv_size):
 
     with torch.no_grad():
         for sample in loader:
-            speed = sample["train_speed"]
-            sin = sample["train_sin"]
-            cos = sample["train_cos"]
+            speed = sample["train_speed"].to(device)
+            sin = sample["train_sin"].to(device)
+            cos = sample["train_cos"].to(device)
 
             enc, out = model(speed, sin, cos, return_enc=True)
 
-            enc_features.append(enc.squeeze().numpy())
-            speed_pred.append(out["speed"].squeeze().item())
+            enc_features.append(enc.cpu().squeeze().numpy())
+            speed_pred.append(out["speed"].cpu().squeeze().item())
 
     pred["speed"] = np.concatenate((np.zeros(max_conv_size // 2 + 1), np.array(speed_pred)[: -max_conv_size // 2]))
 

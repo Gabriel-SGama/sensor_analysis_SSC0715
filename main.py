@@ -39,16 +39,18 @@ if __name__ == "__main__":
     normal_test_loader = torch.utils.data.DataLoader(normal_unsupervised, batch_size=1, shuffle=False, num_workers=2, drop_last=False)
     emg_test_loader = torch.utils.data.DataLoader(emg_unsupervised, batch_size=1, shuffle=False, num_workers=2, drop_last=False)
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     traj_model = Model.Traj_model()
     optimizer = torch.optim.Adam(traj_model.parameters(), lr=0.001)
 
-    Train.train(traj_model, train_loader, optimizer)
+    Train.train(traj_model, train_loader, optimizer, device)
 
     # -------------CLUSTERING-------------
     enc = traj_model.enc
 
-    normal_enc_features, normal_pred = Cluster.extract_features(traj_model, normal_test_loader, max_conv_size)
-    emg_enc_features, emg_pred = Cluster.extract_features(traj_model, emg_test_loader, max_conv_size)
+    normal_enc_features, normal_pred = Cluster.extract_features(traj_model, normal_test_loader, max_conv_size, device)
+    emg_enc_features, emg_pred = Cluster.extract_features(traj_model, emg_test_loader, max_conv_size, device)
 
     normal_labels, emg_labels, normal_dist, emg_dist = Cluster.cluster(normal_enc_features, emg_enc_features)
 
