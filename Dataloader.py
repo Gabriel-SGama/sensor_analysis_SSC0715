@@ -12,15 +12,16 @@ import numpy as np
 
 
 class Trajectory(data.Dataset):
-    def __init__(self, normal_data, emg_data, max_conv_size=7):
+    def __init__(self, normal_data, emg_data, max_conv_size=7, accidents_index=None, append_size=2):
         """preprocess csv data to generate the train dataset.
 
         Args:
             normal_data: dict with normal data
             emg_data: dict with emergency data
-            max_conv_size (int, optional): window size. Defaults to 7.
+            max_conv_size (int, optional): window size, always set to a odd number. Defaults to 7.
+            accidents_index (list, optional): list of accidents detected
+            append_size (int, optional): how many steps to define as accidents
         """
-        # max_conv_size: always set to a odd number
 
         self.conv_size = max_conv_size
 
@@ -35,6 +36,7 @@ class Trajectory(data.Dataset):
         self.normal_len = len(self.normal_speed) - (self.conv_size // 2) - 1
         self.emg_len = len(self.emg_speed) - (self.conv_size // 2) - 1
 
+        # concat zero values for start prediction
         zeros = np.zeros((self.conv_size // 2))
 
         self.normal_speed = np.concatenate((zeros, self.normal_speed), axis=0)
@@ -131,12 +133,65 @@ class Unsupervised(data.Dataset):
         sample["train_speed"] = torch.tensor(
             self.speed[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32
         ).unsqueeze(0)
-        sample["train_sin"] = torch.tensor(
-            self.sin[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32
+        sample["train_sin"] = torch.tensor(self.sin[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32).unsqueeze(0)
+        sample["train_cos"] = torch.tensor(self.cos[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32).unsqueeze(0)
+
+        return sample
+
+    def __len__(self):
+        return self.len
+
+
+class Supervised(data.Dataset):
+    def __init__(self, data, accidents_index, append_size=2, max_conv_size=7):
+        """creates the array to the window sized sampling
+
+        Args:
+            data: dict with normal or emergency data
+            accidents_index: array with the detected accidents indexs
+            append_size: size to 'expand' accident
+            max_conv_size (int, optional): window size. Defaults to 7.
+
+        """
+
+        initial_size = len(accidents_index)
+        for i in range(initial_size):
+            np.append(accidents_index, [accidents_index[i] - 2, accidents_index[i] - 1, accidents_index[i] + 1, accidents_index[i] + 2])
+
+        self.accidents_array = np.zeros_like(data["Speed"])
+        self.accidents_array[accidents_index] = 1
+
+        self.conv_size = max_conv_size
+
+        self.speed = np.array(data["Speed"][:550], dtype=float)
+        self.cos = np.cos(np.array(data["Bearing"][:550], dtype=float))
+        self.sin = np.sin(np.array(data["Bearing"][:550], dtype=float))
+
+        self.len = len(self.speed)
+
+        zeros = np.zeros((self.conv_size // 2))
+
+        self.speed = np.concatenate((np.concatenate((zeros, self.speed), axis=0), zeros), axis=0)
+        self.cos = np.concatenate((np.concatenate((zeros, self.cos), axis=0), zeros), axis=0)
+        self.sin = np.concatenate((np.concatenate((zeros, self.sin), axis=0), zeros), axis=0)
+
+    def __getitem__(self, index):
+        save_index = index
+
+        index += self.conv_size // 2
+
+        sample = {}
+
+        sample["index"] = index
+        sample["save_index"] = save_index
+
+        sample["train_speed"] = torch.tensor(
+            self.speed[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32
         ).unsqueeze(0)
-        sample["train_cos"] = torch.tensor(
-            self.cos[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32
-        ).unsqueeze(0)
+        sample["train_sin"] = torch.tensor(self.sin[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32).unsqueeze(0)
+        sample["train_cos"] = torch.tensor(self.cos[index - self.conv_size // 2 : index + self.conv_size // 2 + 1], dtype=torch.float32).unsqueeze(0)
+
+        sample["accident"] = torch.tensor(self.accidents_array[save_index], dtype=torch.float32).unsqueeze(0)
 
         return sample
 

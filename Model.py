@@ -19,8 +19,8 @@ class Traj_enc(nn.Module):
         self.combined_c = nn.Conv1d(30, 40, kernel_size=3)
         self.combined_bn = nn.BatchNorm1d(40)
 
-        self.enc_fc = nn.Linear(40, 40)
-        self.out_bn = nn.BatchNorm1d(40)
+        self.enc_fc = nn.Linear(40, 10)
+        self.out_bn = nn.BatchNorm1d(10)
 
     def forward(self, speed, sin, cos):
         speed = self.speed_c1(speed)
@@ -44,7 +44,7 @@ class Traj_enc(nn.Module):
         combined = combined.view(-1, 40)
         out = self.enc_fc(combined)
         out = self.out_bn(out)
-        out = self.relu(out)
+        # out = self.relu(out)
 
         return out
 
@@ -54,7 +54,7 @@ class Traj_model(nn.Module):
         super(Traj_model, self).__init__()
 
         self.enc = Traj_enc()
-        self.speed_dec_fc1 = nn.Linear(40, 1)
+        self.speed_dec_fc1 = nn.Linear(10, 1)
 
     def forward(self, speed, sin, cos, return_enc=False):
         enc = self.enc(speed, sin, cos)
@@ -68,3 +68,18 @@ class Traj_model(nn.Module):
             return enc, pred
 
         return pred
+
+
+class class_model(nn.Module):
+    def __init__(self, pretrained_model):
+        super(class_model, self).__init__()
+
+        self.enc = pretrained_model.enc
+        self.class_dec = nn.Linear(10, 1)
+
+    def forward(self, speed, sin, cos):
+        out = self.enc(speed, sin, cos)
+        out = self.class_dec(out)
+        out = torch.sigmoid(out)
+
+        return out

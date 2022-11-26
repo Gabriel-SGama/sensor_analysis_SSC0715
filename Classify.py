@@ -4,6 +4,25 @@ import numpy as np
 import cv2 as cv
 
 
+def classify_supervised(model, loader, max_conv_size, device):
+    model.eval()
+
+    accident_index = []
+
+    with torch.no_grad():
+        for i, sample in enumerate(loader):
+            speed = sample["train_speed"].to(device)
+            sin = sample["train_sin"].to(device)
+            cos = sample["train_cos"].to(device)
+
+            out = model(speed, sin, cos)
+
+            if out > 0.5:
+                accident_index.append(i)
+
+    return accident_index
+
+
 def extract_features(model, loader, max_conv_size, device):
     """given a pre trained model, this function extract the predicted speed
     and extracted features.
