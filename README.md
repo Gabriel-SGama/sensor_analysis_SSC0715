@@ -48,27 +48,36 @@ If the function value is higher than a certain threshold, it is considered an ac
   <img src="imgs/emg_map.png">
 </p>
 
-## Unsupervised approach
-Since the data wasn't enough data for a supervised approach, I tried to cluster each time step to detect the "accidents".
+## Unsupervised & Supervised approach
 
-The data used was the speed and the sin and cos values from the Bearing angle (all data was from the GPS).
+Unsupervised and supervised methods were compared to the handmade approach. The model was trained to predict the next speed given a window-sized input of the speed and bearing angle in the form of ```sin``` and ```cos``` functions.
 
-The KMeans method (n=3) was able to split the GPS data into stable high speed (white), transition (dark gray), stable or acceleration at low speeds (green).
+This model was then used to cluster the data and to initialize the weights of the supervised model.
 
-To train the model and extract the features:
+The KMeans method (n=3) was able to split the GPS data into stable high speed (green), transition (dark gray), and stable or acceleration at low speeds (white).
+
+For the supervised approach, it was used binary cross entropy with weights 1,6 for the non-accidents and accidents, respectively. Only the first 550 steps of the emergency data was used.
+
+The model is made by a 1D convolutional encoder followed by a couple of fully connected layers.
+
+To train the model, extract the features and classify the accidents:
 ```
 python main.py
 ```
 
-A 1D convolutional neural network is trained to predict the next speed value to generate relevant features. After that, the method KNN-means is applied to the encoder features to classify each sequence step.
+The "accidents" are marked according to the Supervised approach.
 
-The "accidents" are marked according to the Handmade approach.
+Evaluating the centroid distante to the extracted features, it is possible to notice that the "accidents" could'n fit nicely in a specific class, but it is not regular enough to be considered as a good estimate for accident detection.
 
-### Cluster example
+### Output example
 <p align="center">
   <img src="imgs/normal_uns.png">
 </p>
 
 <p align="center">
   <img src="imgs/emg_uns.png">
+</p>
+
+<p align="center">
+  <img src="imgs/gt.png">
 </p>

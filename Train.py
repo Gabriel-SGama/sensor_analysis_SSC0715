@@ -43,13 +43,23 @@ def train_unsupervised(model, loader, optimizer, device):
 
 
 def train_supervised(pretrained_model, loader, device):
+    """train the model to predict the accidents using the emergency data
+
+    Args:
+        pretrained_model: pre trained model in unsupervised manner.
+        loader: emergency supervised loader
+        device: pytorch device
+
+    Returns:
+        class_model: trained model
+    """
     class_model = Model.class_model(pretrained_model)
     class_model.to(device)
     optimizer = torch.optim.Adam(class_model.parameters())
 
     class_loss = nn.BCELoss(reduce=False)
 
-    for e in range(10):
+    for e in range(8):
         loss_mean = 0
 
         for sample in tqdm(loader):

@@ -76,6 +76,7 @@ def cluster(normal_enc_features, emg_enc_features):
         normal_dist: KMeans dist to the class centroid for normal data
         emg_dist: KMeans dist to the class centroid for emergency data
     """
+
     features = np.concatenate((normal_enc_features, emg_enc_features))
     kmeans = KMeans(n_clusters=3, random_state=0).fit(features)
 

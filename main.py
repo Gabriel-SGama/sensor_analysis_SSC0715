@@ -68,5 +68,8 @@ if __name__ == "__main__":
 
     # -------------EMERGENCY-------------
     Utils.plotCsv(emg_csv, "Emergency data", pred=emg_pred, labels=emg_labels, dist=emg_dist, accident_indexs=emg_accident_indexs_supervised)
-    Utils.plotCsv(emg_csv, "Emergency data GT", pred=emg_pred, labels=emg_labels, dist=emg_dist, accident_indexs=emg_accident_indexs)
+
+    # -------------GROUND TRUTH-------------
+    Utils.plotGT(normal_csv, emg_csv, "Ground Truth", normal_accident_indexs, emg_accident_indexs)
+
     plt.show()

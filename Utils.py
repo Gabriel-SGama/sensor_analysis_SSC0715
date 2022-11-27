@@ -19,9 +19,9 @@ def plotCsv(data, title, pred=None, labels=None, dist=None, accident_indexs=None
 
     ax[0].set_title("Speed")
     ax[0].plot(data["Speed"], color="b")
-    ax[1].set_title("Sin")
+    ax[1].set_title("Bearing sin")
     ax[1].plot(np.sin(np.pi * data["Bearing"] / 180.0), color="g")
-    ax[2].set_title("Cos")
+    ax[2].set_title("Bearing cos")
     ax[2].plot(np.cos(np.pi * data["Bearing"] / 180.0), color="purple")
 
     if pred is not None:
@@ -31,14 +31,14 @@ def plotCsv(data, title, pred=None, labels=None, dist=None, accident_indexs=None
 
         colors = cm.nipy_spectral(np.linspace(0, 1, max(labels) + 1))
 
-        ax[3].set_title("dist")
+        ax[3].set_title("Distance")
         ax[3].plot(dist)
 
         for i in range(len(labels)):
-            ax[0].axvspan(i, i + 1, facecolor=colors[labels[i]], alpha=0.5)
-            ax[1].axvspan(i, i + 1, facecolor=colors[labels[i]], alpha=0.5)
-            ax[2].axvspan(i, i + 1, facecolor=colors[labels[i]], alpha=0.5)
-            ax[3].axvspan(i, i + 1, facecolor=colors[labels[i]], alpha=0.5)
+            ax[0].axvspan(i, i + 1, facecolor=colors[labels[i]], alpha=0.4)
+            ax[1].axvspan(i, i + 1, facecolor=colors[labels[i]], alpha=0.4)
+            ax[2].axvspan(i, i + 1, facecolor=colors[labels[i]], alpha=0.4)
+            ax[3].axvspan(i, i + 1, facecolor=colors[labels[i]], alpha=0.4)
 
     if accident_indexs is not None:
         ax[0].vlines(
@@ -58,6 +58,41 @@ def plotCsv(data, title, pred=None, labels=None, dist=None, accident_indexs=None
             linestyles=["dashed"],
             linewidth=2,
             alpha=0.8,
+        )
+
+
+def plotGT(normal_data, emg_data, title, normal_accident, emg_accident):
+
+    f, ax = plt.subplots(2, 1, figsize=(8, 6))
+    f.suptitle(title, fontsize=16)
+
+    f.tight_layout()
+
+    ax[0].set_title("Normal Speed")
+    ax[0].plot(normal_data["Speed"], color="b")
+    ax[1].set_title("Emergency Speed")
+    ax[1].plot(emg_data["Speed"], color="b")
+
+    if normal_accident is not None:
+        ax[0].vlines(
+            normal_accident,
+            ymin=np.min(normal_data["Speed"]),
+            ymax=np.max(normal_data["Speed"]),
+            color="r",
+            linestyles=["dashed"],
+            linewidth=2,
+            alpha=0.9,
+        )
+
+    if emg_accident is not None:
+        ax[1].vlines(
+            emg_accident,
+            ymin=np.min(emg_data["Speed"]),
+            ymax=np.max(emg_data["Speed"]),
+            color="r",
+            linestyles=["dashed"],
+            linewidth=2,
+            alpha=0.9,
         )
 
 

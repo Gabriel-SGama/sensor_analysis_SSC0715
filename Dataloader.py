@@ -143,7 +143,7 @@ class Unsupervised(data.Dataset):
 
 
 class Supervised(data.Dataset):
-    def __init__(self, data, accidents_index, append_size=2, max_conv_size=7):
+    def __init__(self, data, accidents_index, append_size=2, max_conv_size=7, max_index=550):
         """creates the array to the window sized sampling
 
         Args:
@@ -151,6 +151,7 @@ class Supervised(data.Dataset):
             accidents_index: array with the detected accidents indexs
             append_size: size to 'expand' accident
             max_conv_size (int, optional): window size. Defaults to 7.
+            max_index (int, optional): index where to split the data
 
         """
 
@@ -163,9 +164,9 @@ class Supervised(data.Dataset):
 
         self.conv_size = max_conv_size
 
-        self.speed = np.array(data["Speed"][:550], dtype=float)
-        self.cos = np.cos(np.array(data["Bearing"][:550], dtype=float))
-        self.sin = np.sin(np.array(data["Bearing"][:550], dtype=float))
+        self.speed = np.array(data["Speed"][:max_index], dtype=float)
+        self.cos = np.cos(np.array(data["Bearing"][:max_index], dtype=float))
+        self.sin = np.sin(np.array(data["Bearing"][:max_index], dtype=float))
 
         self.len = len(self.speed)
 
