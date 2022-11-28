@@ -54,7 +54,7 @@ Unsupervised and supervised methods were compared to the handmade approach. The 
 
 This model was then used to cluster the data and to initialize the weights of the supervised model.
 
-The KMeans method (n=3) was able to split the GPS data into stable high speed (green), transition (dark gray), and stable or acceleration at low speeds (white).
+The KMeans method (n=3) tries to split the extracted features into stable high speed (green), acceleration (white), and deceleration (gray).
 
 For the supervised approach, it was used binary cross entropy with weights 1,6 for the non-accidents and accidents, respectively. Only the first 550 steps of the emergency data was used.
 
