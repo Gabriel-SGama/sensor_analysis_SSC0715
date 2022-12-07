@@ -59,7 +59,7 @@ def train_supervised(pretrained_model, loader, device):
 
     class_loss = nn.BCELoss(reduce=False)
 
-    for e in range(8):
+    for e in range(20):
         loss_mean = 0
 
         for sample in tqdm(loader):
@@ -71,7 +71,7 @@ def train_supervised(pretrained_model, loader, device):
             accidents = (sample["accident"].to(device) > 0.5).squeeze()
             loss = class_loss(out, sample["accident"].to(device)).squeeze()
 
-            loss += loss * accidents * 5
+            loss += loss * accidents * 20
             loss = loss.mean()
             loss_mean += loss.cpu().item()
 
