@@ -67,7 +67,7 @@ python main.py
 
 The "accidents" are marked according to the Supervised approach.
 
-Evaluating the centroid distante to the extracted features, it is possible to notice that the "accidents" could'n fit nicely in a specific class, but it is not regular enough to be considered as a good estimate for accident detection.
+Evaluating the centroid distance to the extracted features, it is possible to notice that the "accidents" could'n fit nicely in a specific class, but it is not regular enough to be considered as a good estimate for accident detection.
 
 ### Output example
 <p align="center">
