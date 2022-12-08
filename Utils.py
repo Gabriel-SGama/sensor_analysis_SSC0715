@@ -50,15 +50,15 @@ def plotCsv(data, title, pred=None, labels=None, dist=None, accident_indexs=None
             linewidth=2,
             alpha=0.8,
         )
-        ax[3].vlines(
-            accident_indexs,
-            ymin=np.min(dist),
-            ymax=np.max(dist),
-            color="r",
-            linestyles=["dashed"],
-            linewidth=2,
-            alpha=0.8,
-        )
+        # ax[3].vlines(
+        #     accident_indexs,
+        #     ymin=np.min(dist),
+        #     ymax=np.max(dist),
+        #     color="r",
+        #     linestyles=["dashed"],
+        #     linewidth=2,
+        #     alpha=0.8,
+        # )
 
 
 def plotGT(normal_data, emg_data, title, normal_accident, emg_accident):
